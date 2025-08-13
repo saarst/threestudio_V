@@ -382,6 +382,7 @@ class PromptProcessor(BaseObject):
                         self._cache_dir,
                     ),
                 )
+                
                 subprocess.start()
                 subprocess.join()
                 assert subprocess.exitcode == 0, "prompt embedding process failed!"

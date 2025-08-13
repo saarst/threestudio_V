@@ -5,7 +5,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from igl import fast_winding_number_for_meshes, point_mesh_squared_distance, read_obj
+# from igl import fast_winding_number_for_meshes, point_mesh_squared_distance, read_obj
+from igl import fast_winding_number, point_mesh_squared_distance, readOBJ
 from torch.autograd import Function
 from torch.cuda.amp import custom_bwd, custom_fwd
 
@@ -476,7 +477,7 @@ class MeshOBJ:
         device = query.device
         shp = query.shape
         query_np = query.detach().cpu().reshape(-1, 3).numpy()
-        target_alphas = fast_winding_number_for_meshes(
+        target_alphas = fast_winding_number(
             self.v.astype(np.float32), self.f, query_np
         )
         return torch.from_numpy(target_alphas).reshape(shp[:-1]).to(device)
@@ -511,7 +512,7 @@ class ShapeLoss(nn.Module):
         self.proximal_surface = 0.3
         self.delta = 0.2
         self.shape_path = guide_shape
-        v, _, _, f, _, _ = read_obj(self.shape_path, float)
+        v, _, _, f, _, _ = readOBJ(self.shape_path, float)
         mesh = MeshOBJ(v, f)
         matrix_rot = np.array([[1, 0, 0], [0, 0, -1], [0, 1, 0]]) @ np.array(
             [[0, 0, 1], [0, 1, 0], [-1, 0, 0]]
